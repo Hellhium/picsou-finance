@@ -59,12 +59,13 @@ const WISE_INSTITUTION = /\bwise\b/i
  */
 function WiseJarsHint({ onOpenWiseJars }: { onOpenWiseJars?: () => void }) {
   const { t } = useTranslation()
-  const { data: wiseStatus } = useWiseStatus()
+  const { data: wiseStatus, isPending } = useWiseStatus()
 
-  // Until the status is known (or when it cannot be read), saying nothing beats pointing a member
-  // who already syncs the jars through Wise Jars to a second source.
-  if (!wiseStatus) return null
-  if (wiseStatus.connected && wiseStatus.status === 'CONNECTED') {
+  // Until the status is known, saying nothing beats pointing a member who already syncs the jars
+  // through Wise Jars to a second source. A failed request falls back to the either-way line,
+  // which holds whatever the status.
+  if (isPending) return null
+  if (wiseStatus?.connected && wiseStatus.status === 'CONNECTED') {
     return (
       <p className="flex items-center gap-2 px-1 text-sm text-muted-foreground">
         <PiggyBank className="size-4 shrink-0" />
@@ -72,7 +73,7 @@ function WiseJarsHint({ onOpenWiseJars }: { onOpenWiseJars?: () => void }) {
       </p>
     )
   }
-  const failed = wiseStatus.connected
+  const failed = wiseStatus?.connected ?? false
   return (
     <div className="flex flex-wrap items-center gap-2 px-1 text-xs text-muted-foreground">
       <PiggyBank className="size-4 shrink-0" />

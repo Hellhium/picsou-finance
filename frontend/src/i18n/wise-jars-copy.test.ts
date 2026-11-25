@@ -7,7 +7,7 @@ import fr from './locales/fr.json'
 // Enable Banking lists a Wise jar once it is selected in its Control Panel, and the Wise Jars
 // connector can bring the same jar: linking both counts it twice (#761). No Wise copy may say the
 // bank connection cannot see the jars; the lines that send a member from one source to the other
-// warn about the double count, and those shown once both may be linked say how to undo it.
+// warn about the double count, and the one shown once both may be linked says how to undo it.
 const twice = { fr: /deux fois/, en: /counts? twice/, de: /doppelt/, es: /dos veces/ }
 const cannotSee = {
   fr: /ne (les )?voit pas|non couvertes|ne passent pas|ne passent jamais/,
@@ -59,9 +59,7 @@ describe('Wise Jars copy', () => {
     (lang, locale) => {
       expect(locale.sync.banks.wiseJarsEitherWay).toContain('Control Panel')
       expect(locale.sync.banks.wiseJarsConnected).toContain('Control Panel')
-      for (const text of [locale.sync.banks.wiseJarsConnected, locale.sync.wise.intro]) {
-        expect(text).toMatch(remedy[lang as keyof typeof remedy])
-      }
+      expect(locale.sync.banks.wiseJarsConnected).toMatch(remedy[lang as keyof typeof remedy])
     },
   )
 })

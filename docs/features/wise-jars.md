@@ -49,7 +49,7 @@ balances) through `BoundedUtf8Body`, shared with SimpleFIN.
 
 The two Wise connections are told apart in the UI. The Wise Jars tab opens by saying it is only
 for jars, when the Wise bank connection does not list them, that a jar brought by both counts
-twice, and that the current account stays on the Banks tab. On the Banks tab, an Enable Banking
+twice (without a remedy: the tab also shows before anything is connected), and that the current account stays on the Banks tab. On the Banks tab, an Enable Banking
 connection whose institution name contains the word `Wise` gets a line beneath it: the jars come
 through this connection only if they are selected in the Enable Banking Control Panel, otherwise
 through the Wise Jars connector, never both, with a button that opens the Wise Jars tab. Once a
@@ -62,8 +62,11 @@ condition. The copy names the Wise Jars account as the one to delete: its `wise_
 so it is never recreated, while the Enable Banking copy has no IBAN, so it comes back as a new
 account when Enable Banking rotates the account uid (a new consent, for example). Deleting the last
 jar account also removes the Wise Jars connection, which brings the line back to its first wording,
-still true then. The failed-sync line keeps its short wording: it is about fixing the token. Until `/wise/status` answers, or when it fails, the line is not shown, so a member who already
-syncs the jars through Wise Jars is never sent to a second source.
+still true then. The failed-sync line keeps its short wording: it is about fixing the token. Until `/wise/status` answers, the line is not shown, so a member who already syncs the jars
+through Wise Jars is not sent to a second source while it loads; a failed request falls back to the
+either-way wording, which holds whatever the status. A deleted Wise Jars account is not brought
+back, even on reconnect: a member who later unselects that jar in the Control Panel has to add it
+back by hand.
 
 Daily refresh is the `wise` source in `MemberSyncService`, right after SimpleFIN. Manual sync and
 connect share a limit of 6 requests per minute per IP. Disconnect deletes the token and keeps

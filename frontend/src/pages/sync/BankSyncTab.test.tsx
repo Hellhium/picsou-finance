@@ -194,7 +194,7 @@ describe('BankSyncTab Wise connection', () => {
     expect(screen.queryByRole('button', { name: 'sync.banks.wiseJarsConnect' })).not.toBeInTheDocument()
   })
 
-  it('says nothing under a Wise row when the Wise Jars status request fails', async () => {
+  it('falls back to the either-way line when the Wise Jars status request fails', async () => {
     const failure = Promise.reject(new Error('boom'))
     failure.catch(() => {})
     apiGet.mockImplementation((url: string) => {
@@ -208,12 +208,8 @@ describe('BankSyncTab Wise connection', () => {
     await screen.findByText('Wise')
     await waitFor(() => expect(apiGet).toHaveBeenCalledWith('/wise/status'))
     // Let the rejection settle into the query's error state before checking.
-    await act(async () => {
-      await failure.catch(() => {})
-      await new Promise((resolve) => setTimeout(resolve, 0))
-    })
-    expect(screen.queryByText('sync.banks.wiseJarsEitherWay')).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'sync.banks.wiseJarsConnect' })).not.toBeInTheDocument()
+    expect(await screen.findByText('sync.banks.wiseJarsEitherWay')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'sync.banks.wiseJarsConnect' })).toBeInTheDocument()
   })
 
   it('stays silent under other banks and never asks for the Wise status', async () => {

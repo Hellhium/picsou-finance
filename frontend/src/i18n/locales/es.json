@@ -1122,7 +1122,7 @@
     },
     "wise": {
       "title": "Wise Jars",
-      "intro": "Este conector es solo para tus Jars de Wise, cuando la conexión bancaria de Wise en la pestaña Bancos no los muestra. Usa uno u otro: un jar que llega por ambos cuenta dos veces, así que elimina su cuenta de Wise Jars. Tu cuenta corriente de Wise y sus movimientos siguen en la pestaña Bancos.",
+      "intro": "Este conector es solo para tus Jars de Wise, cuando la conexión bancaria de Wise en la pestaña Bancos no los muestra. Usa uno u otro: un jar que llega por ambos cuenta dos veces. Tu cuenta corriente de Wise y sus movimientos siguen en la pestaña Bancos.",
       "setupHint": "En wise.com, crea un token de API personal de solo lectura y pégalo aquí.",
       "createToken": "Crear un token",
       "token": "Token de API de Wise",

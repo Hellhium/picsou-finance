@@ -1471,7 +1471,7 @@
     },
     "wise": {
       "title": "Wise Jars",
-      "intro": "Ce connecteur sert uniquement à vos Jars Wise, quand la connexion bancaire Wise de l'onglet Banques ne les liste pas. Utilisez l'un ou l'autre : un jar apporté par les deux compte deux fois, supprimez alors son compte Wise Jars. Votre compte courant Wise et ses transactions restent sur l'onglet Banques.",
+      "intro": "Ce connecteur sert uniquement à vos Jars Wise, quand la connexion bancaire Wise de l'onglet Banques ne les liste pas. Utilisez l'un ou l'autre : un jar apporté par les deux compte deux fois. Votre compte courant Wise et ses transactions restent sur l'onglet Banques.",
       "setupHint": "Sur le site wise.com, créez un jeton API personnel en lecture seule, puis collez-le ici.",
       "createToken": "Créer un jeton",
       "token": "Jeton API Wise",

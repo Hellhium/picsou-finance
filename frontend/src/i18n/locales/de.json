@@ -1122,7 +1122,7 @@
     },
     "wise": {
       "title": "Wise Jars",
-      "intro": "Dieser Connector ist nur für Ihre Wise Jars, wenn die Wise-Bankverbindung im Tab Banken sie nicht auflistet. Nutzen Sie das eine oder das andere: Ein Jar, der über beide kommt, zählt doppelt, löschen Sie dann sein Wise-Jars-Konto. Ihr Wise-Girokonto und seine Umsätze bleiben im Tab Banken.",
+      "intro": "Dieser Connector ist nur für Ihre Wise Jars, wenn die Wise-Bankverbindung im Tab Banken sie nicht auflistet. Nutzen Sie das eine oder das andere: Ein Jar, der über beide kommt, zählt doppelt. Ihr Wise-Girokonto und seine Umsätze bleiben im Tab Banken.",
       "setupHint": "Erstellen Sie auf wise.com ein persönliches API-Token mit Lesezugriff und fügen Sie es hier ein.",
       "createToken": "Token erstellen",
       "token": "Wise-API-Token",
