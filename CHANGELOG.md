@@ -82,6 +82,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Natixis Interépargne: logins asked to register a passkey now complete.** After the password
   and the code, Natixis can ask for a passkey to be registered. Picsou now puts it off, as the
   "later" button of the saver space does, instead of reporting a website format change. (#686, #688)
+- **Wise Jars: no more advice that counts a jar twice.** The Banks tab said Wise Jars never come
+  through the Enable Banking connection and sent members to the Wise Jars connector, but Enable
+  Banking lists a jar once it is selected in its Control Panel, so following that advice counted
+  the jar twice. The Banks tab and the Wise Jars tab now say to use one source or the other, and
+  how to remove a jar already counted twice (#761).
 
 ## [1.3.0] — 2026-11-24
 

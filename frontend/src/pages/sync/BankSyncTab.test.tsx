@@ -147,13 +147,13 @@ describe('BankSyncTab Wise connection', () => {
     apiGet.mockReset()
   })
 
-  it('says the Jars are missing under a Wise row and opens the Wise Jars connector', async () => {
+  it('tells to pick one source for the Jars under a Wise row and opens the Wise Jars connector', async () => {
     const onOpenWiseJars = vi.fn()
     givenStatuses([WISE_CONNECTION], WISE_DISCONNECTED)
 
     renderTab({ onOpenWiseJars })
 
-    expect(await screen.findByText('sync.banks.wiseJarsMissing')).toBeInTheDocument()
+    expect(await screen.findByText('sync.banks.wiseJarsEitherWay')).toBeInTheDocument()
     fireEvent.click(screen.getByRole('button', { name: 'sync.banks.wiseJarsConnect' }))
     expect(onOpenWiseJars).toHaveBeenCalledTimes(1)
   })
@@ -179,13 +179,50 @@ describe('BankSyncTab Wise connection', () => {
     expect(onOpenWiseJars).toHaveBeenCalledTimes(1)
   })
 
+  it('says nothing under a Wise row while the Wise Jars status is loading', async () => {
+    apiGet.mockImplementation((url: string) => {
+      if (url === '/sync/status') return Promise.resolve({ data: [WISE_CONNECTION] })
+      if (url === '/wise/status') return new Promise(() => {})
+      return Promise.reject(new Error(`Unexpected GET ${url}`))
+    })
+
+    renderTab({ onOpenWiseJars: vi.fn() })
+
+    await screen.findByText('Wise')
+    await waitFor(() => expect(apiGet).toHaveBeenCalledWith('/wise/status'))
+    expect(screen.queryByText('sync.banks.wiseJarsEitherWay')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'sync.banks.wiseJarsConnect' })).not.toBeInTheDocument()
+  })
+
+  it('says nothing under a Wise row when the Wise Jars status request fails', async () => {
+    const failure = Promise.reject(new Error('boom'))
+    failure.catch(() => {})
+    apiGet.mockImplementation((url: string) => {
+      if (url === '/sync/status') return Promise.resolve({ data: [WISE_CONNECTION] })
+      if (url === '/wise/status') return failure
+      return Promise.reject(new Error(`Unexpected GET ${url}`))
+    })
+
+    renderTab({ onOpenWiseJars: vi.fn() })
+
+    await screen.findByText('Wise')
+    await waitFor(() => expect(apiGet).toHaveBeenCalledWith('/wise/status'))
+    // Let the rejection settle into the query's error state before checking.
+    await act(async () => {
+      await failure.catch(() => {})
+      await new Promise((resolve) => setTimeout(resolve, 0))
+    })
+    expect(screen.queryByText('sync.banks.wiseJarsEitherWay')).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'sync.banks.wiseJarsConnect' })).not.toBeInTheDocument()
+  })
+
   it('stays silent under other banks and never asks for the Wise status', async () => {
     givenStatuses(FAILED_CONNECTIONS, WISE_DISCONNECTED)
 
     renderTab({ onOpenWiseJars: vi.fn() })
 
     await screen.findByText('Bank A')
-    expect(screen.queryByText('sync.banks.wiseJarsMissing')).not.toBeInTheDocument()
+    expect(screen.queryByText('sync.banks.wiseJarsEitherWay')).not.toBeInTheDocument()
     expect(apiGet).not.toHaveBeenCalledWith('/wise/status')
   })
 })

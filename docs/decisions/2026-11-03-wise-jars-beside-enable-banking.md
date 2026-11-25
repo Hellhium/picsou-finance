@@ -3,6 +3,12 @@
 > Date: 2026-11-03
 > Status: ✅ Active
 
+> **Update 2026-11-25.** The Context below holds for a jar that is not selected in the Enable
+> Banking Control Panel. Once a jar is selected there, Enable Banking lists it as an `SVGS`
+> account with no IBAN. The decision stands, since Enable Banking still brings no jar the member
+> did not select, but the UI now tells members to use one source or the other: a jar linked
+> through both counts twice (#761).
+
 ## Context
 
 Wise lets a customer set money aside in jars, which Wise calls `SAVINGS` balances. Enable
@@ -78,6 +84,6 @@ account deletion never mistake one connection for the other.
 - Deleting the last `wise_jar_` account removes the connection, consistent with the
   [account-deletion ADR](./2026-08-11-account-deletion-removes-its-connection.md).
 - The UI names the split: the Wise Jars tab says it only covers jars, and a Wise connection on the
-  Banks tab points to it.
+  Banks tab points to it, saying to use one source for the jars (see the 2026-11-25 update).
 - Wise joins the MCP bank sources: `get_sync_status`, `trigger_bank_sync`, and the full sync.
   HTTP 401 or 403 reports `NEEDS_REAUTH`.

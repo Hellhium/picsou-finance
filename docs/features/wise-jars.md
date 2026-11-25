@@ -1,13 +1,15 @@
 # Feature: Wise jars
 
-> Last updated: 2026-11-03
+> Last updated: 2026-11-25
 
 ## Context
 
-Enable Banking links Wise through PSD2 and returns only the current balances. Money in Wise jars
-(Wise's `SAVINGS` balances) was missing from Picsou. This connector reads the jars with the
+Enable Banking links Wise through PSD2 and returns the current balances, plus only the jars
+selected for the application in the Enable Banking Control Panel. Money in other Wise jars (Wise's
+`SAVINGS` balances) was missing from Picsou. This connector reads the jars with the
 member's Wise personal API token and keeps them as savings accounts. Enable Banking is unchanged
-and still brings the Wise current balances with their transactions.
+and still brings the Wise current balances with their transactions. A member uses one source or
+the other for the jars, since a jar linked through both counts twice.
 
 ## How it works
 
@@ -46,11 +48,22 @@ refused. Response bodies are capped while they are read (256 KB for profiles, 1 
 balances) through `BoundedUtf8Body`, shared with SimpleFIN.
 
 The two Wise connections are told apart in the UI. The Wise Jars tab opens by saying it is only
-for jars and that the current account stays on the Banks tab. On the Banks tab, an Enable Banking
-connection whose institution name contains the word `Wise` gets a line beneath it: the jars do not
-come through this connection, with a button that opens the Wise Jars tab. Once a token is stored,
-the line says the jars sync through Wise Jars, or, after a failed sync (`ERROR` or
-`REAUTH_REQUIRED`), that the last jar sync failed, with the same button.
+for jars, when the Wise bank connection does not list them, that a jar brought by both counts
+twice, and that the current account stays on the Banks tab. On the Banks tab, an Enable Banking
+connection whose institution name contains the word `Wise` gets a line beneath it: the jars come
+through this connection only if they are selected in the Enable Banking Control Panel, otherwise
+through the Wise Jars connector, never both, with a button that opens the Wise Jars tab. Once a
+token is stored, the line says the jars sync through Wise Jars and that a jar also selected in the
+Control Panel counts twice, so its Wise Jars account should be deleted, or, after a failed sync (`ERROR` or `REAUTH_REQUIRED`), that the last
+jar sync failed, with the same button. The UI cannot tell whether a jar is already linked through
+Enable Banking (no field matches the two copies), so the copy warns instead of hiding the line
+(#761). The warning shows whether or not a jar is actually doubled, so it is worded as a
+condition. The copy names the Wise Jars account as the one to delete: its `wise_jar_` id is stable,
+so it is never recreated, while the Enable Banking copy has no IBAN, so it comes back as a new
+account when Enable Banking rotates the account uid (a new consent, for example). Deleting the last
+jar account also removes the Wise Jars connection, which brings the line back to its first wording,
+still true then. The failed-sync line keeps its short wording: it is about fixing the token. Until `/wise/status` answers, or when it fails, the line is not shown, so a member who already
+syncs the jars through Wise Jars is never sent to a second source.
 
 Daily refresh is the `wise` source in `MemberSyncService`, right after SimpleFIN. Manual sync and
 connect share a limit of 6 requests per minute per IP. Disconnect deletes the token and keeps
@@ -94,7 +107,7 @@ by `V131__wise_connection.sql`.
 | Connect imports at once | The token is reusable, so validating it and importing are one request; a refused token stores nothing | SimpleFIN's connect-then-sync, needed there because its setup token is single-use |
 | Token limited to letters, digits and dashes | It goes into a header; anything else could inject a header line | Passing the pasted text as is |
 | `@DynamicUpdate` on `WiseConnection` | A sync loads the row before calling Wise and saves its status after. A full-row update would put back the token it loaded over one a concurrent connect stored meanwhile | Optimistic locking, which needs a version column and turns the overlap into a failed sync |
-| Jars-only connector, pointed to from the Wise bank connection | Wise refuses statements to personal tokens in the EEA and the UK, and no longer accepts signed requests from personal accounts, so only Enable Banking brings the current account's transactions. The hint keeps the split visible instead of making the member guess | Moving the whole Wise account to the token, which loses its transactions |
+| Jars-only connector, pointed to from the Wise bank connection | Wise refuses statements to personal tokens in the EEA and the UK, and no longer accepts signed requests from personal accounts, so only Enable Banking brings the current account's transactions. The hint keeps the split visible instead of making the member guess, and says to pick one source for the jars, since Enable Banking lists a jar selected in its Control Panel | Moving the whole Wise account to the token, which loses its transactions |
 | `REAUTH_REQUIRED` stored for a refused token | Sync All and the panel can send the member to the token form instead of retrying a dead token; DEGIRO uses the same value | One `ERROR` for every failure, as SimpleFIN does, which hides that only the member can fix it |
 | Sync status refreshes on failure too | A failed sync stores `ERROR`; refreshing only on success left the badge green beside the error | Refreshing on success only, as SimpleFIN does |
 

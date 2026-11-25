@@ -52,14 +52,19 @@ function statusClasses(status: string): string {
 const WISE_INSTITUTION = /\bwise\b/i
 
 /**
- * Open banking never returns Wise Jars, so a Wise connection says where they come from instead.
+ * Enable Banking lists Wise Jars only when they are selected in its Control Panel, and the Wise
+ * Jars connector can bring the same jars, so a Wise connection says to pick one source: linking
+ * both counts each jar twice, and no field matches the two copies.
  * Only rendered under a Wise row, which keeps the status request off every other member's page.
  */
 function WiseJarsHint({ onOpenWiseJars }: { onOpenWiseJars?: () => void }) {
   const { t } = useTranslation()
   const { data: wiseStatus } = useWiseStatus()
 
-  if (wiseStatus?.connected && wiseStatus.status === 'CONNECTED') {
+  // Until the status is known (or when it cannot be read), saying nothing beats pointing a member
+  // who already syncs the jars through Wise Jars to a second source.
+  if (!wiseStatus) return null
+  if (wiseStatus.connected && wiseStatus.status === 'CONNECTED') {
     return (
       <p className="flex items-center gap-2 px-1 text-sm text-muted-foreground">
         <PiggyBank className="size-4 shrink-0" />
@@ -67,11 +72,11 @@ function WiseJarsHint({ onOpenWiseJars }: { onOpenWiseJars?: () => void }) {
       </p>
     )
   }
-  const failed = wiseStatus?.connected ?? false
+  const failed = wiseStatus.connected
   return (
     <div className="flex flex-wrap items-center gap-2 px-1 text-xs text-muted-foreground">
       <PiggyBank className="size-4 shrink-0" />
-      <span>{t(failed ? 'sync.banks.wiseJarsFailed' : 'sync.banks.wiseJarsMissing')}</span>
+      <span>{t(failed ? 'sync.banks.wiseJarsFailed' : 'sync.banks.wiseJarsEitherWay')}</span>
       {onOpenWiseJars && (
         <Button variant="outline" size="xs" onClick={onOpenWiseJars}>
           {t(failed ? 'sync.banks.wiseJarsOpen' : 'sync.banks.wiseJarsConnect')}
